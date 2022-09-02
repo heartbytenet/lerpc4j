@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id 'signing'
+    id 'maven-publish'
+}
+
+group   'net.heartbyte'
+version '1.0-SNAPSHOT'
+
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+
+    maven {
+        name 'heartbyteMaven'
+        url  'https://maven.heeartbyte.net/snapshots'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly    'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    implementation 'com.google.code.gson:gson:2.9.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name 'heartbyteMaven'
+            url  'https://maven.heartbyte.net/snapshots'
+
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            groupId    'net.heartbyte'
+            artifactId rootProject.name
+            version    '1.0'
+
+            from components.java
+        }
+    }
+}
