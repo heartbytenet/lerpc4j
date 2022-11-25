@@ -15,13 +15,19 @@ public class LeRPC {
     public Gson   gson;
     public Http   clientHttp;
     public String token;
+    public boolean secure;
     public String endpoint;
 
     public LeRPC(String endpoint, String token) {
         this.gson       = new Gson();
         this.token      = token;
+        this.secure     = true;
         this.endpoint   = endpoint;
         this.clientHttp = new Http();
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
     }
 
     public Result execute(Command command) {
@@ -32,7 +38,7 @@ public class LeRPC {
 
         return this.clientHttp.Execute(
                 "POST",
-                String.format("https://%s/execute", this.endpoint),
+                String.format("%s://%s/execute", (this.secure ? "https" : "http"), this.endpoint),
                 this.gson.toJson(command).getBytes(StandardCharsets.UTF_8),
                 headers,
                 Result.class,
