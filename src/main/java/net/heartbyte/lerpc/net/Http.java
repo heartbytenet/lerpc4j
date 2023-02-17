@@ -43,7 +43,8 @@ public class Http {
                     wr.close();
                 }
 
-                BufferedReader input = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                BufferedReader input = new BufferedReader(
+                        new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
 
                 String        inputLine;
                 StringBuilder content   = new StringBuilder();
