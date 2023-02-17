@@ -1,6 +1,7 @@
 package net.heartbyte.lerpc.net;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -13,7 +14,7 @@ import java.util.concurrent.*;
 
 public class Http {
     public static String          UserAgent = "leRPC/1.0";
-    public static Gson            gson      = new Gson();
+    public static Gson            gson      = new GsonBuilder().disableHtmlEscaping().create();
     public static ExecutorService service   = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
 
