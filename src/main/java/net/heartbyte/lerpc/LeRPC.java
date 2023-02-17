@@ -6,10 +6,7 @@ import net.heartbyte.lerpc.proto.Command;
 import net.heartbyte.lerpc.proto.Result;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LeRPC {
     public Gson   gson;
@@ -30,18 +27,28 @@ public class LeRPC {
         this.secure = secure;
     }
 
-    public Result execute(Command command) {
+    public Optional<Result> executeAttempt(Command command) {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", Collections.singletonList("application/json"));
 
         command.token = this.token;
 
-        return this.clientHttp.Execute(
+        return Optional.ofNullable(this.clientHttp.Execute(
                 "POST",
                 String.format("%s://%s/execute", (this.secure ? "https" : "http"), this.endpoint),
                 this.gson.toJson(command).getBytes(StandardCharsets.UTF_8),
                 headers,
                 Result.class,
-                false);
+                false));
+    }
+
+    public Result execute(Command command) {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            Optional<Result> resultOptional = this.executeAttempt(command);
+            if (resultOptional.isPresent())
+                return resultOptional.get();
+        }
+
+        return null;
     }
 }
