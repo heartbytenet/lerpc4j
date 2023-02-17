@@ -2,20 +2,14 @@ package net.heartbyte.lerpc.net;
 
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Http {
     public static String          UserAgent = "leRPC/1.0";
@@ -41,7 +35,12 @@ public class Http {
 
                 if (body != null) {
                     con.setDoOutput(true);
-                    con.getOutputStream().write(body);
+
+                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
+                    writer.write(new String(body).toCharArray());
+                    writer.close();
+                    wr.close();
                 }
 
                 BufferedReader input = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -56,11 +55,9 @@ public class Http {
                 con.disconnect();
 
                 future.complete(gson.fromJson(content.toString(), type));
-            } catch (IOException exception) {
-                exception.printStackTrace(System.err);
-                throw new RuntimeException(exception);
             } catch (Exception exception) {
                 exception.printStackTrace(System.err);
+                future.completeExceptionally(exception);
             }
         };
 
