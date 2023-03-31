@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class LeRPC {
-    public final Gson gson;
+    public static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     public Client  clientHttp;
     public String  token;
@@ -19,11 +19,10 @@ public class LeRPC {
     public String  endpoint;
 
     public Gson getGson() {
-        return this.gson;
+        return LeRPC.gson;
     }
 
     public LeRPC(Client client, String endpoint, String token) {
-        this.gson       = new GsonBuilder().disableHtmlEscaping().create();
         this.token      = token;
         this.secure     = true;
         this.endpoint   = endpoint;
@@ -31,7 +30,6 @@ public class LeRPC {
     }
 
     public LeRPC(String endpoint, String token) {
-        this.gson       = new GsonBuilder().disableHtmlEscaping().create();
         this.token      = token;
         this.secure     = true;
         this.endpoint   = endpoint;
