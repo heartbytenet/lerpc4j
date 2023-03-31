@@ -1,7 +1,9 @@
 package net.heartbyte.lerpc.proto;
 
 import com.google.gson.annotations.SerializedName;
+import net.heartbyte.lerpc.LeRPC;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ public class Result {
     @SerializedName("pl") public Map<String, Object> payload;
     @SerializedName("er") public String              error;
 
+    @SuppressWarnings("unchecked")
     public <T> Optional<T> getPayloadObject(String key) {
         if (!this.success) {
             return Optional.empty();
@@ -30,6 +33,12 @@ public class Result {
         } catch (ClassCastException ignored) {
             return Optional.empty();
         }
+    }
+
+    public <T> Optional<T> getPayloadObjectReflect(String key, Type type) {
+        return this.getPayloadObject(key)
+                .map(LeRPC.gson::toJson)
+                .map(it -> LeRPC.gson.fromJson(it, type));
     }
 
     public Optional<String> getPayloadString(String key) {
