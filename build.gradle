@@ -15,7 +15,7 @@ repositories {
 
     maven {
         name 'heartbyteMaven'
-        url  'https://maven.heeartbyte.net/snapshots'
+        url  'https://maven.heartbyte.net/snapshots'
     }
 }
 
