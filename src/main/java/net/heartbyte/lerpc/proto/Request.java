@@ -81,12 +81,14 @@ public class Request {
         return this;
     }
 
-    public void setParam(String key, Object value) {
+    public Request setParam(String key, Object value) {
         if (this.params == null) {
             this.params = new HashMap<>();
         }
 
         this.params.put(key, value);
+
+        return this;
     }
 
     public String getToken() {
