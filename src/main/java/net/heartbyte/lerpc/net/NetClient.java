@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-public interface Client {
+public interface NetClient {
     <T> T Execute(
             String                    method,
             String                    url,

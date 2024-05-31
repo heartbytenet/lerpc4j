@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public class Http implements Client {
-    public static String          UserAgent = "leRPC/1.0";
+public class Http implements NetClient {
+    public static String          UserAgent = "lerpc4j/2.0";
     public static Gson            gson      = new GsonBuilder().disableHtmlEscaping().create();
     public static ExecutorService service   = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());

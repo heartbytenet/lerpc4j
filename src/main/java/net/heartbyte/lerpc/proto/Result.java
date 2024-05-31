@@ -1,56 +1,80 @@
 package net.heartbyte.lerpc.proto;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import net.heartbyte.lerpc.LeRPC;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
 public class Result {
-    @SerializedName("id") public String              ID;
-    @SerializedName("ok") public boolean             success;
-    @SerializedName("pl") public Map<String, Object> payload;
-    @SerializedName("er") public String              error;
+    private static Gson gson = new GsonBuilder()
+            .disableHtmlEscaping()
+            .create();
+
+    @SerializedName("k")
+    private String key;
+
+    @SerializedName("c")
+    private ResultCode code;
+
+    @SerializedName("d")
+    private Map<String, Object> data;
+
+    @SerializedName("m")
+    private String message;
+
+    public String getKey() {
+        return key;
+    }
+
+    public ResultCode getCode() {
+        return code;
+    }
+
+    public Map<String, Object> getData() {
+        return data;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Optional<Object> getData(String key) {
+        if (this.data == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(data.get(key));
+    }
 
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getPayloadObject(String key) {
-        if (!this.success) {
+    public <T> Optional<T> getDataValue(String key) {
+        if (this.getCode() == ResultCode.ERROR) {
             return Optional.empty();
         }
 
-        if (this.payload == null) {
-            return Optional.empty();
-        }
-
-        Object obj = this.payload.getOrDefault(key, null);
-        if (obj == null) {
-            return Optional.empty();
-        }
-
-        try {
-            return Optional.ofNullable((T) this.payload.getOrDefault(key, null));
-        } catch (ClassCastException ignored) {
-            return Optional.empty();
-        }
+        return this.getData(key)
+                .flatMap(it -> Optional.of((T) it));
     }
 
-    public <T> Optional<T> getPayloadObjectReflect(String key, Type type) {
-        return this.getPayloadObject(key)
-                .map(LeRPC.gson::toJson)
-                .map(it -> LeRPC.gson.fromJson(it, type));
+    public <T> Optional<T> getDataConvert(String key, Type type) {
+        return this.getDataValue(key)
+                .map(gson::toJson)
+                .map(it -> gson.fromJson(it, type));
     }
 
-    public Optional<String> getPayloadString(String key) {
-        return this.getPayloadObject(key);
+    public Optional<String> getDataString(String key) {
+        return this.getDataValue(key);
     }
 
-    public Optional<Integer> getPayloadInteger(String key) {
-        return this.<Double>getPayloadObject(key)
+    public Optional<Integer> getDataInteger(String key) {
+        return this.<Double>getDataValue(key)
                 .map(Double::intValue);
     }
 
-    public Optional<Double> getPayloadDouble(String key) {
-        return this.getPayloadObject(key);
+    public Optional<Double> getDataDouble(String key) {
+        return this.getDataValue(key);
     }
 }

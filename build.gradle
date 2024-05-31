@@ -5,7 +5,7 @@ plugins {
 }
 
 group   'net.heartbyte'
-version '1.0-SNAPSHOT'
+version '2.0-SNAPSHOT'
 
 targetCompatibility = 1.8
 sourceCompatibility = 1.8
@@ -14,8 +14,9 @@ repositories {
     mavenCentral()
 
     maven {
-        name 'heartbyteMaven'
-        url  'https://maven.heartbyte.net/snapshots'
+        name = "heartbyteMaven"
+        credentials(PasswordCredentials)
+        url = uri("https://maven.heartbyte.net/snapshots")
     }
 }
 
@@ -47,7 +48,7 @@ publishing {
         maven(MavenPublication) {
             groupId    'net.heartbyte'
             artifactId rootProject.name
-            version    '1.0'
+            version    '2.0'
 
             from components.java
         }
