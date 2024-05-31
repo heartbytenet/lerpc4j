@@ -19,6 +19,11 @@ public class Http implements NetClient {
             0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>());
 
     @Override
+    public ClientKind getKind() {
+        return ClientKind.HTTPS;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T Execute(String method, String url, byte[] body, Map<String, List<String>> headers, Type type, boolean async) {
         CompletableFuture<T> future = new CompletableFuture<>();

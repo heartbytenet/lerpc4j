@@ -28,6 +28,13 @@ public class Request {
                 .withMethod(method);
     }
 
+    @Override
+    public String toString() {
+        return String.format(
+                "Request{key=%s, namespace=%s, method=%s, params=%s}",
+                this.getKey(), this.getNamespace(), this.getMethod(), this.getParams());
+    }
+
     public Request withToken(String token) {
         this.token = token;
 

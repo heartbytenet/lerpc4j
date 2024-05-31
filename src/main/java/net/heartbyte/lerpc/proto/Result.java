@@ -49,6 +49,13 @@ public class Result {
         return Optional.ofNullable(data.get(key));
     }
 
+    @Override
+    public String toString() {
+        return String.format(
+                "Result{key=%s, code=%s, data=%s message=%s}",
+                getKey(), getCode(), getData(), getMessage());
+    }
+
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getDataValue(String key) {
         if (this.getCode() == ResultCode.ERROR) {

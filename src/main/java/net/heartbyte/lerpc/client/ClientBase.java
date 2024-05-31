@@ -50,11 +50,24 @@ public abstract class ClientBase implements Client {
         return headers;
     }
 
+    public String getUrl() {
+        switch (this.getNetClient().getKind()) {
+            case HTTP:
+                return String.format("http://%s/execute", this.getRemote());
+
+            case HTTPS:
+                return String.format("https://%s/execute", this.getRemote());
+
+            default:
+                throw new RuntimeException("unimplemented client kind: " + this.getNetClient().getKind());
+        }
+    }
+
     @Override
     public CompletableFuture<Result> execute(Request request) {
         return this.getNetClient().Execute(
                 "POST",
-                this.getRemote(),
+                this.getUrl(),
                 this.getGson()
                         .toJson(request.addToken(this.getToken()))
                         .getBytes(StandardCharsets.UTF_8),
@@ -67,7 +80,7 @@ public abstract class ClientBase implements Client {
     public Optional<Result> executeSync(Request request) {
         return Optional.ofNullable(this.getNetClient().Execute(
                 "POST",
-                this.getRemote(),
+                this.getUrl(),
                 this.getGson()
                         .toJson(request.addToken(this.getToken()))
                         .getBytes(StandardCharsets.UTF_8),

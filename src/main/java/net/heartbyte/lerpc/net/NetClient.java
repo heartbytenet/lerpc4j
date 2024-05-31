@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface NetClient {
+    ClientKind getKind();
+
     <T> T Execute(
             String                    method,
             String                    url,
