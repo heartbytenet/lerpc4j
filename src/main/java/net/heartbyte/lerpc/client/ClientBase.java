@@ -2,6 +2,7 @@ package net.heartbyte.lerpc.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.heartbyte.lerpc.net.Http;
 import net.heartbyte.lerpc.net.NetClient;
 import net.heartbyte.lerpc.proto.Request;
 import net.heartbyte.lerpc.proto.Result;
@@ -20,6 +21,10 @@ public abstract class ClientBase implements Client {
     private String remote;
     private String token;
 
+    private int retries    = 1;
+    private int retryDelay = 100;
+
+
     public Gson getGson() {
         return this.gson;
     }
@@ -35,6 +40,27 @@ public abstract class ClientBase implements Client {
     public String getToken() {
         return token;
     }
+
+    @Override
+    public int getRetries() {
+        return retries;
+    }
+
+    @Override
+    public void setRetries(int retries) {
+        this.retries = retries;
+    }
+
+    @Override
+    public int getRetryDelay() {
+        return retryDelay;
+    }
+
+    @Override
+    public void setRetryDelay(int retryDelay) {
+        this.retryDelay = retryDelay;
+    }
+
 
     public ClientBase(NetClient netClient, String remote, String token) {
         this.netClient = netClient;
@@ -87,5 +113,39 @@ public abstract class ClientBase implements Client {
                 this.getHeaders(),
                 Result.class,
                 false));
+    }
+
+    @Override
+    public CompletableFuture<Result> executeWithRetry(Request request, boolean sync) {
+        CompletableFuture<Result> future = new CompletableFuture<>();
+
+        Runnable runnable = () -> {
+            for (int x = 0; x < this.getRetries(); x++) {
+                Result result = this.executeSync(request).orElse(null);
+                if (result == null) {
+                    try {
+                        Thread.sleep(this.getRetryDelay());
+                    } catch (InterruptedException exception) {
+                        future.completeExceptionally(exception);
+                        return;
+                    }
+
+                    continue;
+                }
+
+                future.complete(result);
+                break;
+            }
+
+            future.completeExceptionally(new RuntimeException("maximum retries reached"));
+        };
+
+        if (sync) {
+            runnable.run();
+        } else {
+            Http.service.submit(runnable);
+        }
+
+        return future;
     }
 }
